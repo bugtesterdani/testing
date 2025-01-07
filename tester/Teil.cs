@@ -57,8 +57,21 @@ namespace tester
     public class Knotenpunkt
     {
         public double PositionX { get; set; }
-        public double PositionXZiel { get; set; }
         public double PositionY { get; set; }
-        public double PositionYZiel { get; set; }
+        public bool IsConnected { get; set; } = false;
+        public Knotenpunkt ConnectedKnoten { get; set; }
+
+        public void Dock(Knotenpunkt otherKnoten)
+        {
+            if (!IsConnected && !otherKnoten.IsConnected)
+            {
+                PositionX = otherKnoten.PositionX;
+                PositionY = otherKnoten.PositionY;
+                IsConnected = true;
+                otherKnoten.IsConnected = true;
+                ConnectedKnoten = otherKnoten;
+                otherKnoten.ConnectedKnoten = this;
+            }
+        }
     }
 }

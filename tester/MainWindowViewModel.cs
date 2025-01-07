@@ -22,7 +22,10 @@ namespace tester
                 new Knotenpunkt() { PositionX = 0, PositionY = 12 },
                 new Knotenpunkt() { PositionX = 0, PositionY = 28 }
             } },
-            new Teil { PositionX = 200, PositionY = 100, Breite = 70, Höhe = 50, Farbe = "Blue" }
+            new Teil { PositionX = 200, PositionY = 100, Breite = 70, Höhe = 50, Farbe = "Blue", Knoten = new List<Knotenpunkt> {
+                new Knotenpunkt() { PositionX = 60, PositionY = 12 },
+                new Knotenpunkt() { PositionX = 60, PositionY = 28 }
+            } }
         };
         }
         public void UpdatePosition(Teil teil, double newX, double newY) { teil.PositionX = newX; teil.PositionY = newY; OnPropertyChanged(nameof(Teile)); }
