@@ -359,11 +359,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\hello\\source\\repos\\tester\\tester\\tester.csproj",
+      "projectUniqueName": "C:\\Users\\hello\\Documents\\GitHub\\testing\\tester\\tester.csproj",
       "projectName": "tester",
-      "projectPath": "C:\\Users\\hello\\source\\repos\\tester\\tester\\tester.csproj",
+      "projectPath": "C:\\Users\\hello\\Documents\\GitHub\\testing\\tester\\tester.csproj",
       "packagesPath": "C:\\Users\\hello\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\hello\\source\\repos\\tester\\tester\\obj\\",
+      "outputPath": "C:\\Users\\hello\\Documents\\GitHub\\testing\\tester\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

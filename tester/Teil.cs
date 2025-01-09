@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using System.Drawing;
 
 namespace tester
 {
@@ -60,8 +61,9 @@ namespace tester
         public double PositionY { get; set; }
         public bool IsConnected { get; set; } = false;
         public Knotenpunkt ConnectedKnoten { get; set; }
+        public int LineID { get; set; }
 
-        public void Dock(Knotenpunkt otherKnoten)
+        public void Dock(Knotenpunkt otherKnoten, int id)
         {
             if (!IsConnected && !otherKnoten.IsConnected)
             {
@@ -71,7 +73,31 @@ namespace tester
                 otherKnoten.IsConnected = true;
                 ConnectedKnoten = otherKnoten;
                 otherKnoten.ConnectedKnoten = this;
+                LineID = id;
+                otherKnoten.LineID = LineID;
             }
+        }
+    }
+
+    public class Lines : INotifyPropertyChanged
+    {
+        private System.Windows.Point _startPoint;
+        private System.Windows.Point _endPoint;
+        public System.Windows.Point StartPoint
+        {
+            get => _startPoint;
+            set { _startPoint = value; OnPropertyChanged(nameof(StartPoint)); }
+        }
+        public System.Windows.Point EndPoint
+        {
+            get => _endPoint;
+            set { _endPoint = value; OnPropertyChanged(nameof(EndPoint)); }
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected virtual void OnPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

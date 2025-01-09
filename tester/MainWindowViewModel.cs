@@ -11,6 +11,24 @@ namespace tester
 {
     public class MainWindowViewModel : INotifyPropertyChanged
     {
+        private Dictionary<int, Lines> _lines { get; set; } = [];
+        public Dictionary<int, Lines> LineDic
+        {
+            get { return _lines; }
+            set
+            {
+                _lines = value;
+                OnPropertyChanged(nameof(Line));
+            }
+        }
+        public List<Lines> Line
+        {
+            get
+            {
+                return [.. _lines.Values];
+            }
+        }
+
         public ObservableCollection<Teil> Teile { get; set; }
 
         public MainWindowViewModel()
@@ -27,6 +45,7 @@ namespace tester
                 new Knotenpunkt() { PositionX = 60, PositionY = 28 }
             } }
         };
+            _lines.Add(0, new Lines { StartPoint = new(10,10), EndPoint = new(100,100) });
         }
         public void UpdatePosition(Teil teil, double newX, double newY) { teil.PositionX = newX; teil.PositionY = newY; OnPropertyChanged(nameof(Teile)); }
 
