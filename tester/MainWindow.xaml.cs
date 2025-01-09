@@ -1,6 +1,7 @@
 ﻿using IronPython.Hosting;
 using Microsoft.Scripting.Hosting;
 using System.Configuration;
+using System.Diagnostics;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
@@ -108,11 +109,18 @@ namespace tester
                     {
                         Point Start = viewmodel.LineDic[knoten.LineID].StartPoint;
                         Point End = viewmodel.LineDic[knoten.LineID].EndPoint;
-                        if (((Start.X > _selectedTeil.PositionX) && (Start.X < (_selectedTeil.PositionX + _selectedTeil.Breite))) ||
-                            ((Start.Y > _selectedTeil.PositionY) && (Start.Y < (_selectedTeil.PositionY + _selectedTeil.Höhe))))
+                        //if (knoten.selectedpos == Positionselected.None)
+                        //{
+                        //    if ((Start.X > _selectedTeil.PositionX) && (Start.X < (_selectedTeil.PositionX + _selectedTeil.Breite)) &&
+                        //        (Start.Y > _selectedTeil.PositionY) && (Start.Y < (_selectedTeil.PositionY + _selectedTeil.Höhe)))
+                        //        knoten.selectedpos = Positionselected.Start;
+                        //    else if ((End.X > _selectedTeil.PositionX) && (End.X < (_selectedTeil.PositionX + _selectedTeil.Breite)) &&
+                        //        (End.Y > _selectedTeil.PositionY) && (End.Y < (_selectedTeil.PositionY + _selectedTeil.Höhe)))
+                        //        knoten.selectedpos = Positionselected.End;
+                        //}
+                        if (knoten.selectedpos == Positionselected.Start)
                             viewmodel.LineDic[knoten.LineID].StartPoint = new Point(Start.X + offsetX, Start.Y + offsetY);
-                        else if (((End.X > _selectedTeil.PositionX) && (End.X < (_selectedTeil.PositionX + _selectedTeil.Breite))) ||
-                            ((End.Y > _selectedTeil.PositionY) && (End.Y < (_selectedTeil.PositionY + _selectedTeil.Höhe))))
+                        else if (knoten.selectedpos == Positionselected.End)
                             viewmodel.LineDic[knoten.LineID].EndPoint = new Point(End.X + offsetX, End.Y + offsetY);
                     }
                 }
@@ -139,13 +147,7 @@ namespace tester
                 var hitTestResult = VisualTreeHelper.HitTest(DesignerCanvas, currentPosition);
 
                 if (hitTestResult?.VisualHit is Ellipse ellipse && ellipse.DataContext is Knotenpunkt endKnoten)
-                {
-                    int id = ((MainWindowViewModel)DataContext).LineDic.Count + 1;
-                    _startKnoten.Dock(endKnoten, id);
-                    Dictionary<int, Lines> _tmplines = ((MainWindowViewModel)DataContext).LineDic;
-                    _tmplines.Add(id, new Lines { StartPoint = _startPoint, EndPoint = currentPosition });
-                    ((MainWindowViewModel)DataContext).LineDic = _tmplines;
-                }
+                    AddDicPosKnoten(endKnoten, currentPosition);
                 else if (hitTestResult?.VisualHit is Line line)
                     foreach (var child in DesignerCanvas.Children)
                     {
@@ -162,7 +164,12 @@ namespace tester
                                                 ContentPresenter c2 = (ContentPresenter)itControl2.ItemContainerGenerator.ContainerFromItem(subitem2);
                                                 if (c2.ContentTemplate.FindName("PointConnect", c2) is Ellipse potentialEllipse)
                                                     if (SubParse(currentPosition, potentialEllipse, Canvas.GetLeft(c2) + Canvas.GetLeft(c), Canvas.GetTop(c2) + Canvas.GetTop(c)).Item1)
-                                                        break;
+                                                    {
+                                                        DesignerCanvas.Children.Remove(_currentLine);
+                                                        _currentLine = null;
+                                                        Mouse.Capture(null);
+                                                        return;
+                                                    }
                                             }
                             }
                         else if (item is Ellipse potentialEllipse)
@@ -190,14 +197,21 @@ namespace tester
             ellipseCenterY += potentialEllipse.Height / 2;
             if (Math.Abs(currentPosition.X - ellipseCenterX) < 10 && Math.Abs(currentPosition.Y - ellipseCenterY) < 10)
             {
-                int id = ((MainWindowViewModel)DataContext).LineDic.Count + 1;
-                _startKnoten.Dock(potentialKnoten, id);
-                Dictionary<int, Lines> _tmplines = ((MainWindowViewModel)DataContext).LineDic;
-                _tmplines.Add(id, new Lines { StartPoint = _startPoint, EndPoint = new(ellipseCenterX, ellipseCenterY) });
-                ((MainWindowViewModel)DataContext).LineDic = _tmplines;
+                AddDicPosKnoten(potentialKnoten, new(ellipseCenterX, ellipseCenterY));
                 return new(true, new(ellipseCenterX, ellipseCenterY));
             }
             return new(false, new());
+        }
+
+        private void AddDicPosKnoten(Knotenpunkt potentialKnoten, Point Endpoint)
+        {
+            int id = ((MainWindowViewModel)DataContext).LineDic.Count + 1;
+            _startKnoten.Dock(potentialKnoten, id);
+            Dictionary<int, Lines> _tmplines = ((MainWindowViewModel)DataContext).LineDic;
+            _tmplines.Add(id, new Lines { StartPoint = _startPoint, EndPoint = Endpoint });
+            _startKnoten.selectedpos = Positionselected.Start;
+            potentialKnoten.selectedpos = Positionselected.End;
+            ((MainWindowViewModel)DataContext).LineDic = _tmplines;
         }
 
         private Tuple<bool, Point> SubParseP(Point currentPosition, Ellipse potentialEllipse, double defaultvalueX = 0, double defaultvalueY = 0)

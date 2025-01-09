@@ -61,6 +61,7 @@ namespace tester
         public double PositionY { get; set; }
         public bool IsConnected { get; set; } = false;
         public Knotenpunkt ConnectedKnoten { get; set; }
+        public Positionselected selectedpos { get; set; } = Positionselected.None;
         public int LineID { get; set; }
 
         public void Dock(Knotenpunkt otherKnoten, int id)
@@ -77,6 +78,13 @@ namespace tester
                 otherKnoten.LineID = LineID;
             }
         }
+    }
+
+    public enum Positionselected
+    {
+        Start,
+        End,
+        None
     }
 
     public class Lines : INotifyPropertyChanged

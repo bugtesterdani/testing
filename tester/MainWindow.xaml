@@ -12,18 +12,6 @@
     </Window.DataContext>
     <Grid>
         <Canvas Name="DesignerCanvas" Background="LightGray">
-            <ItemsControl ItemsSource="{Binding Line}">
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <Canvas />
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <Line X1="{Binding StartPoint.X}" X2="{Binding EndPoint.X}" Y1="{Binding StartPoint.Y}" Y2="{Binding EndPoint.Y}" StrokeThickness="3" Stroke="Black" />
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
             <ItemsControl ItemsSource="{Binding Teile}">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
@@ -58,6 +46,18 @@
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
                         </Canvas>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+            <ItemsControl ItemsSource="{Binding Line}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <Canvas />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Line X1="{Binding StartPoint.X}" X2="{Binding EndPoint.X}" Y1="{Binding StartPoint.Y}" Y2="{Binding EndPoint.Y}" StrokeThickness="3" Stroke="Black" />
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
