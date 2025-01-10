@@ -1,0 +1,39 @@
+{
+  "height": 60,
+  "width": 100,
+  "color": "Red",
+  "emptyargument": "",
+  "inputs": [
+    {
+      "argumentindex": 0,
+      "position": {
+        "x": 5,
+        "y": 20
+      }
+    },
+    {
+      "argumentindex": 1,
+      "position": {
+        "x": 5,
+        "y": 40
+      }
+    }
+  ],
+  "selectableitems": [
+    {
+      "type": [
+        "and",
+        "or"
+      ]
+    }
+  ],
+  "output": [
+    {
+      "outputindex": 0,
+      "position": {
+        "x": 95,
+        "y": 30
+      }
+    }
+  ]
+}

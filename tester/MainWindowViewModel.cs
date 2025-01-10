@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Newtonsoft.Json;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Input;
+using System.IO;
+using System.Text.Json;
+using tester.Models;
 
 namespace tester
 {
@@ -28,26 +26,128 @@ namespace tester
                 return [.. _lines.Values];
             }
         }
-
-        public ObservableCollection<Teil> Teile { get; set; }
+        public ObservableCollection<Teil> Teile { get; set; } = [];
+        public ObservableCollection<ButtonItem> Buttons { get; set; }
 
         public MainWindowViewModel()
         {
-            Teile = new ObservableCollection<Teil>
-        {
-            new Teil { PositionX = 50, PositionY = 50, Breite = 100, Höhe = 50, Farbe = "Red", Knoten = new List<Knotenpunkt>
+            Buttons = new ObservableCollection<ButtonItem>
             {
-                new Knotenpunkt() { PositionX = 0, PositionY = 12 },
-                new Knotenpunkt() { PositionX = 0, PositionY = 28 }
-            } },
-            new Teil { PositionX = 200, PositionY = 100, Breite = 70, Höhe = 50, Farbe = "Blue", Knoten = new List<Knotenpunkt> {
-                new Knotenpunkt() { PositionX = 60, PositionY = 12 },
-                new Knotenpunkt() { PositionX = 60, PositionY = 28 }
-            } }
-        };
-            _lines.Add(0, new Lines { StartPoint = new(10,10), EndPoint = new(100,100) });
+                new ButtonItem
+                {
+                    Name = "Texteingabe",
+                    Command = new RelayCommand<string>(param => OnButtonClick("0"))
+                },
+                new ButtonItem
+                {
+                    Name = "Klone",
+                    Command = new RelayCommand<string>(param => OnButtonClick("1"))
+                }
+            };
+            Teile.Add(new Teil
+            {
+                PositionX = 100,
+                PositionY = 100,
+                Breite = 50,
+                Höhe = 40,
+                Farbe = "Yellow",
+                Knoten = new()
+                {
+                    new Knotenpunkt { PositionX = 40, PositionY = 15, selectedpos = Positionselected.End }
+                }
+            });
+            ParseJsonMain();
         }
-        public void UpdatePosition(Teil teil, double newX, double newY) { teil.PositionX = newX; teil.PositionY = newY; OnPropertyChanged(nameof(Teile)); }
+
+        private void ParseJsonMain()
+        {
+            string json = File.ReadAllText("Softwares.json");
+            List<SoftwaresModel> softwares = JsonConvert.DeserializeObject<List<SoftwaresModel>>(json);
+            if (softwares == null)
+                return;
+
+            foreach (var soft in softwares)
+                foreach (var sprache in soft.inhalt)
+                {
+                    string json2 = File.ReadAllText(soft.sprache + "//" + sprache.path + "//" + sprache.name + ".json");
+                    ProgModel progs = JsonConvert.DeserializeObject<ProgModel>(json2);
+                    if (progs == null)
+                        continue;
+
+                    Buttons.Add(new ButtonItem()
+                    {
+                        Name = sprache.path + "-" + sprache.name,
+                        Command = new RelayCommand<string>(param =>
+                        {
+                            List<Knotenpunkt> k = new();
+                            foreach (var knot in progs.inputs)
+                                k.Add(new Knotenpunkt { PositionX = knot.position.x, PositionY = knot.position.y, selectedpos = Positionselected.Start });
+                            foreach (var knot in progs.output)
+                                k.Add(new Knotenpunkt { PositionX = knot.position.x, PositionY = knot.position.y, selectedpos = Positionselected.End });
+                            k.Add(new Knotenpunkt { PositionX = (progs.width / 2) - 10, PositionY = 0, selectedpos = Positionselected.Start });
+                            Teile.Add(new()
+                            {
+                                Breite = progs.width,
+                                Höhe = progs.height,
+                                Farbe = progs.color,
+                                PositionX = 50,
+                                PositionY = 50,
+                                Knoten = k
+                            });
+                        })
+                    });
+                }
+        }
+
+        private void OnButtonClick(string buttonLabel)
+        {
+            switch (buttonLabel)
+            {
+                case "0":
+                    Teile.Add(new Teil
+                    {
+                        PositionX = 100,
+                        PositionY = 100,
+                        Breite = 100,
+                        Höhe = 40,
+                        Farbe = "Yellow",
+                        Knoten = new()
+                        {
+                            new Knotenpunkt { PositionX = 90, PositionY = 15, selectedpos = Positionselected.End }
+                        },
+                        UIElements = new ObservableCollection<UIElementModel>()
+                        {
+                            new UIElementModel() { ElementType = "TextBox", height = 20, width = 50, x = 25, y = 10 }
+                        }
+                    });
+                    break;
+                case "1":
+                    Teile.Add(new Teil
+                    {
+                        PositionX = 100,
+                        PositionY = 100,
+                        Breite = 100,
+                        Höhe = 60,
+                        Farbe = "Yellow",
+                        Knoten = new()
+                        {
+                            new Knotenpunkt { PositionX = 0, PositionY = 25, selectedpos = Positionselected.Start },
+                            new Knotenpunkt { PositionX = 90, PositionY = 15, selectedpos = Positionselected.End },
+                            new Knotenpunkt { PositionX = 90, PositionY = 35, selectedpos = Positionselected.End }
+                        }
+                    });
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        public void UpdatePosition(Teil teil, double newX, double newY)
+        {
+            teil.PositionX = newX;
+            teil.PositionY = newY;
+            OnPropertyChanged(nameof(Teile));
+        }
 
         public event PropertyChangedEventHandler PropertyChanged;
         protected virtual void OnPropertyChanged(string propertyName)

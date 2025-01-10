@@ -1,5 +1,7 @@
-﻿using System.ComponentModel;
-using System.Drawing;
+﻿using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Windows.Input;
+using tester.Models;
 
 namespace tester
 {
@@ -11,6 +13,7 @@ namespace tester
         private double _höhe;
         private string _farbe;
         private List<Knotenpunkt> _knoten;
+        public ObservableCollection<UIElementModel> UIElements { get; set; }
 
         public double PositionX
         {
@@ -62,7 +65,7 @@ namespace tester
         public bool IsConnected { get; set; } = false;
         public Knotenpunkt ConnectedKnoten { get; set; }
         public Positionselected selectedpos { get; set; } = Positionselected.None;
-        public int LineID { get; set; }
+        public int LineID { get; set; } = 0;
 
         public void Dock(Knotenpunkt otherKnoten, int id)
         {
@@ -94,12 +97,12 @@ namespace tester
         public System.Windows.Point StartPoint
         {
             get => _startPoint;
-            set { _startPoint = value; OnPropertyChanged(nameof(StartPoint)); }
+            set { if (_startPoint != value) { _startPoint = value; OnPropertyChanged(nameof(StartPoint)); } }
         }
         public System.Windows.Point EndPoint
         {
             get => _endPoint;
-            set { _endPoint = value; OnPropertyChanged(nameof(EndPoint)); }
+            set { if (_endPoint != value) { _endPoint = value; OnPropertyChanged(nameof(EndPoint)); } }
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -107,5 +110,10 @@ namespace tester
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
+    }
+    public class ButtonItem
+    {
+        public string Name { get; set; }
+        public ICommand Command { get; set; }
     }
 }

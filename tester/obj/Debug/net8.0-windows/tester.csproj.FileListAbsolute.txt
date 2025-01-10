@@ -97,3 +97,6 @@ C:\Users\hello\Documents\GitHub\testing\tester\obj\Debug\net8.0-windows\refint\t
 C:\Users\hello\Documents\GitHub\testing\tester\obj\Debug\net8.0-windows\tester.pdb
 C:\Users\hello\Documents\GitHub\testing\tester\obj\Debug\net8.0-windows\tester.genruntimeconfig.cache
 C:\Users\hello\Documents\GitHub\testing\tester\obj\Debug\net8.0-windows\ref\tester.dll
+C:\Users\hello\Documents\GitHub\testing\tester\bin\Debug\net8.0-windows\C#\defaults\If.json
+C:\Users\hello\Documents\GitHub\testing\tester\bin\Debug\net8.0-windows\Softwares.json
+C:\Users\hello\Documents\GitHub\testing\tester\bin\Debug\net8.0-windows\Newtonsoft.Json.dll

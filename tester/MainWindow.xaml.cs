@@ -1,16 +1,7 @@
-﻿using IronPython.Hosting;
-using Microsoft.Scripting.Hosting;
-using System.Configuration;
-using System.Diagnostics;
-using System.Text;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
 using System.Windows.Shapes;
 
 namespace tester
@@ -22,7 +13,15 @@ namespace tester
     {
         private Knotenpunkt _startKnoten;
         private Line _currentLine;
-        private bool _isDraggingTeil; private bool _isDraggingLine; private Point _startPoint; private Teil? _selectedTeil = null; public MainWindow() { InitializeComponent(); }
+        private bool _isDraggingTeil;
+        private bool _isDraggingLine;
+        private Point _startPoint;
+        private Teil? _selectedTeil = null;
+        public MainWindow()
+        {
+            InitializeComponent();
+        }
+        
         private void Rectangle_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             if (sender is Ellipse ellipse && ellipse.DataContext is Knotenpunkt knoten && !_isDraggingTeil)
@@ -36,40 +35,8 @@ namespace tester
                 Point _p = new();
 
                 // If we hit a line, we need to find the closest Ellipse (Knotenpunkt)
-                foreach (var child in DesignerCanvas.Children)
-                {
-                    var item = child;
-                    if (item is ItemsControl itControl)
-                        foreach (var subitem in itControl.Items)
-                        {
-                            ContentPresenter c = (ContentPresenter)itControl.ItemContainerGenerator.ContainerFromItem(subitem);
-                            if (c.ContentTemplate.FindName("BoxCanvas", c) is Canvas potentialTeil)
-                                foreach (var child2 in potentialTeil.Children)
-                                    if (child2 is ItemsControl itControl2)
-                                        foreach (var subitem2 in itControl2.Items)
-                                        {
-                                            ContentPresenter c2 = (ContentPresenter)itControl2.ItemContainerGenerator.ContainerFromItem(subitem2);
-                                            if (c2.ContentTemplate.FindName("PointConnect", c2) is Ellipse potentialEllipse)
-                                            {
-                                                var itemout = SubParseP(_startPoint, potentialEllipse, Canvas.GetLeft(c2) + Canvas.GetLeft(c), Canvas.GetTop(c2) + Canvas.GetTop(c));
-                                                if (itemout.Item1)
-                                                {
-                                                    _p = itemout.Item2;
-                                                    break;
-                                                }
-                                            }
-                                        }
-                        }
-                    else if (item is Ellipse potentialEllipse)
-                    {
-                        var itemout = SubParseP(_startPoint, potentialEllipse);
-                        if (itemout.Item1)
-                        {
-                            _p = itemout.Item2;
-                            break;
-                        }
-                    }
-                }
+                if (Looking(_startPoint, false) is Tuple<bool, Point> outval && outval.Item1)
+                    _p = outval.Item2;
 
                 // Create a new line
                 _currentLine = new Line
@@ -100,32 +67,24 @@ namespace tester
                 var currentPosition = e.GetPosition(DesignerCanvas);
                 var offsetX = currentPosition.X - _startPoint.X;
                 var offsetY = currentPosition.Y - _startPoint.Y;
-                var newX = _selectedTeil.PositionX + offsetX;
-                var newY = _selectedTeil.PositionY + offsetY;
+                _startPoint = currentPosition;
                 MainWindowViewModel viewmodel = (MainWindowViewModel)DataContext;
                 foreach (var knoten in _selectedTeil.Knoten)
-                {
                     if (knoten.IsConnected)
                     {
-                        Point Start = viewmodel.LineDic[knoten.LineID].StartPoint;
-                        Point End = viewmodel.LineDic[knoten.LineID].EndPoint;
-                        //if (knoten.selectedpos == Positionselected.None)
-                        //{
-                        //    if ((Start.X > _selectedTeil.PositionX) && (Start.X < (_selectedTeil.PositionX + _selectedTeil.Breite)) &&
-                        //        (Start.Y > _selectedTeil.PositionY) && (Start.Y < (_selectedTeil.PositionY + _selectedTeil.Höhe)))
-                        //        knoten.selectedpos = Positionselected.Start;
-                        //    else if ((End.X > _selectedTeil.PositionX) && (End.X < (_selectedTeil.PositionX + _selectedTeil.Breite)) &&
-                        //        (End.Y > _selectedTeil.PositionY) && (End.Y < (_selectedTeil.PositionY + _selectedTeil.Höhe)))
-                        //        knoten.selectedpos = Positionselected.End;
-                        //}
                         if (knoten.selectedpos == Positionselected.Start)
+                        {
+                            Point Start = viewmodel.LineDic[knoten.LineID].StartPoint;
                             viewmodel.LineDic[knoten.LineID].StartPoint = new Point(Start.X + offsetX, Start.Y + offsetY);
+                        }
                         else if (knoten.selectedpos == Positionselected.End)
+                        {
+                            Point End = viewmodel.LineDic[knoten.LineID].EndPoint;
                             viewmodel.LineDic[knoten.LineID].EndPoint = new Point(End.X + offsetX, End.Y + offsetY);
+                        }
                     }
-                }
-                viewmodel.UpdatePosition(_selectedTeil, newX, newY);
-                _startPoint = currentPosition;
+
+                viewmodel.UpdatePosition(_selectedTeil, _selectedTeil.PositionX + offsetX, _selectedTeil.PositionY + offsetY);
             }
             if (_isDraggingLine && _currentLine != null)
             {
@@ -138,7 +97,9 @@ namespace tester
         {
             if (_isDraggingTeil && _selectedTeil != null)
             {
-                _isDraggingTeil = false; _selectedTeil = null; Mouse.Capture(null);
+                _isDraggingTeil = false;
+                _selectedTeil = null;
+                Mouse.Capture(null);
             }
             if (_isDraggingLine && _currentLine != null)
             {
@@ -149,33 +110,7 @@ namespace tester
                 if (hitTestResult?.VisualHit is Ellipse ellipse && ellipse.DataContext is Knotenpunkt endKnoten)
                     AddDicPosKnoten(endKnoten, currentPosition);
                 else if (hitTestResult?.VisualHit is Line line)
-                    foreach (var child in DesignerCanvas.Children)
-                    {
-                        var item = child;
-                        if (item is ItemsControl itControl)
-                            foreach (var subitem in itControl.Items)
-                            {
-                                ContentPresenter c = (ContentPresenter)itControl.ItemContainerGenerator.ContainerFromItem(subitem);
-                                if (c.ContentTemplate.FindName("BoxCanvas", c) is Canvas potentialTeil)
-                                    foreach (var child2 in potentialTeil.Children)
-                                        if (child2 is ItemsControl itControl2)
-                                            foreach (var subitem2 in itControl2.Items)
-                                            {
-                                                ContentPresenter c2 = (ContentPresenter)itControl2.ItemContainerGenerator.ContainerFromItem(subitem2);
-                                                if (c2.ContentTemplate.FindName("PointConnect", c2) is Ellipse potentialEllipse)
-                                                    if (SubParse(currentPosition, potentialEllipse, Canvas.GetLeft(c2) + Canvas.GetLeft(c), Canvas.GetTop(c2) + Canvas.GetTop(c)).Item1)
-                                                    {
-                                                        DesignerCanvas.Children.Remove(_currentLine);
-                                                        _currentLine = null;
-                                                        Mouse.Capture(null);
-                                                        return;
-                                                    }
-                                            }
-                            }
-                        else if (item is Ellipse potentialEllipse)
-                            if (SubParse(currentPosition, potentialEllipse).Item1)
-                                break;
-                    }
+                    Looking(currentPosition, true);
 
                 DesignerCanvas.Children.Remove(_currentLine);
                 _currentLine = null;
@@ -183,22 +118,28 @@ namespace tester
             }
         }
 
-        private Tuple<bool, Point> SubParse(Point currentPosition, Ellipse potentialEllipse, double defaultvalueX = 0, double defaultvalueY = 0)
+        private Tuple<bool, Point> Looking(Point currentPosition, bool docklineon)
         {
-            if (potentialEllipse.DataContext is not Knotenpunkt potentialKnoten)
-                return new(false, new());
-            var ellipseCenterX = Canvas.GetLeft(potentialEllipse);
-            if (double.IsNaN(ellipseCenterX))
-                ellipseCenterX = defaultvalueX;
-            ellipseCenterX += potentialEllipse.Width / 2;
-            var ellipseCenterY = Canvas.GetTop(potentialEllipse);
-            if (double.IsNaN(ellipseCenterY))
-                ellipseCenterY = defaultvalueY;
-            ellipseCenterY += potentialEllipse.Height / 2;
-            if (Math.Abs(currentPosition.X - ellipseCenterX) < 10 && Math.Abs(currentPosition.Y - ellipseCenterY) < 10)
+            foreach (var child in DesignerCanvas.Children)
             {
-                AddDicPosKnoten(potentialKnoten, new(ellipseCenterX, ellipseCenterY));
-                return new(true, new(ellipseCenterX, ellipseCenterY));
+                if (child is ItemsControl itControl)
+                    foreach (var subitem in itControl.Items)
+                    {
+                        ContentPresenter c = (ContentPresenter)itControl.ItemContainerGenerator.ContainerFromItem(subitem);
+                        if (c.ContentTemplate.FindName("BoxCanvas", c) is Canvas potentialTeil)
+                            foreach (var child2 in potentialTeil.Children)
+                                if (child2 is ItemsControl itControl2)
+                                    foreach (var subitem2 in itControl2.Items)
+                                    {
+                                        ContentPresenter c2 = (ContentPresenter)itControl2.ItemContainerGenerator.ContainerFromItem(subitem2);
+                                        if (c2.ContentTemplate.FindName("PointConnect", c2) is Ellipse potentialEllipse)
+                                            if (SubParse(currentPosition, potentialEllipse, Canvas.GetLeft(c2) + Canvas.GetLeft(c), Canvas.GetTop(c2) + Canvas.GetTop(c), docklineon: docklineon) is Tuple<bool, Point> outval && outval.Item1)
+                                                return outval;
+                                    }
+                    }
+                else if (child is Ellipse potentialEllipse)
+                    if (SubParse(currentPosition, potentialEllipse, docklineon: docklineon) is Tuple<bool, Point> outval && outval.Item1)
+                        return outval;
             }
             return new(false, new());
         }
@@ -214,7 +155,7 @@ namespace tester
             ((MainWindowViewModel)DataContext).LineDic = _tmplines;
         }
 
-        private Tuple<bool, Point> SubParseP(Point currentPosition, Ellipse potentialEllipse, double defaultvalueX = 0, double defaultvalueY = 0)
+        private Tuple<bool, Point> SubParse(Point currentPosition, Ellipse potentialEllipse, double defaultvalueX = 0, double defaultvalueY = 0, bool docklineon = false)
         {
             if (potentialEllipse.DataContext is not Knotenpunkt potentialKnoten)
                 return new(false, new());
@@ -228,11 +169,16 @@ namespace tester
             ellipseCenterY += potentialEllipse.Height / 2;
             if (Math.Abs(currentPosition.X - ellipseCenterX) < 10 && Math.Abs(currentPosition.Y - ellipseCenterY) < 10)
             {
+                if (docklineon)
+                {
+                    if (_startKnoten.selectedpos != potentialKnoten.selectedpos)
+                        AddDicPosKnoten(potentialKnoten, new(ellipseCenterX, ellipseCenterY));
+                    else
+                        return new(false, new());
+                }
                 return new(true, new(ellipseCenterX, ellipseCenterY));
             }
             return new(false, new());
         }
-
-        private void Rectangle_Loaded(object sender, RoutedEventArgs e) { if (sender is Rectangle rectangle && rectangle.DataContext is Teil teil) { Canvas.SetLeft(rectangle, teil.PositionX); Canvas.SetTop(rectangle, teil.PositionY); } }
     }
 }

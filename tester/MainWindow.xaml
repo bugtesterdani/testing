@@ -11,7 +11,28 @@
         <local:MainWindowViewModel />
     </Window.DataContext>
     <Grid>
-        <Canvas Name="DesignerCanvas" Background="LightGray">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="5*" />
+        </Grid.ColumnDefinitions>
+        <ScrollViewer Grid.Column="0" Margin="2" VerticalScrollBarVisibility="Auto">
+            <ItemsControl ItemsSource="{Binding Buttons}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Button Content="{Binding Name}"
+                            Margin="5"
+                            Height="40"
+                            Command="{Binding Command}"/>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Orientation="Vertical"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+            </ItemsControl>
+        </ScrollViewer>
+        <Canvas Grid.Column="1" Name="DesignerCanvas" Background="LightGray">
             <ItemsControl ItemsSource="{Binding Teile}">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
@@ -42,6 +63,45 @@
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
                                         <Ellipse Name="PointConnect" Width="10" Height="10" Fill="Green" MouseLeftButtonDown="Rectangle_MouseLeftButtonDown" />
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                            <ItemsControl ItemsSource="{Binding UIElements}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <Canvas />
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemContainerStyle>
+                                    <Style TargetType="ContentPresenter">
+                                        <Setter Property="Canvas.Left" Value="{Binding x}" />
+                                        <Setter Property="Canvas.Top" Value="{Binding y}" />
+                                    </Style>
+                                </ItemsControl.ItemContainerStyle>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <ContentControl>
+                                            <ContentControl.Style>
+                                                <Style TargetType="ContentControl">
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding ElementType}" Value="TextBox">
+                                                            <Setter Property="Content">
+                                                                <Setter.Value>
+                                                                    <TextBox Text="{Binding Contents, Mode=TwoWay}" Width="{Binding width}" Height="{Binding height}" />
+                                                                </Setter.Value>
+                                                            </Setter>
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding ElementType}" Value="ComboBox">
+                                                            <Setter Property="Content">
+                                                                <Setter.Value>
+                                                                    <ComboBox ItemsSource="{Binding ContentsList}" SelectedItem="{Binding Contents}" Width="{Binding width}" Height="{Binding height}" />
+                                                                </Setter.Value>
+                                                            </Setter>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </ContentControl.Style>
+                                        </ContentControl>
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
