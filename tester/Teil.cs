@@ -13,7 +13,6 @@ namespace tester
         private double _höhe;
         private string _farbe;
         private List<Knotenpunkt> _knoten;
-        public ObservableCollection<UIElementModel> UIElements { get; set; }
 
         public double PositionX
         {

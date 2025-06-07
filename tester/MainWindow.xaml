@@ -66,45 +66,6 @@
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
-                            <ItemsControl ItemsSource="{Binding UIElements}">
-                                <ItemsControl.ItemsPanel>
-                                    <ItemsPanelTemplate>
-                                        <Canvas />
-                                    </ItemsPanelTemplate>
-                                </ItemsControl.ItemsPanel>
-                                <ItemsControl.ItemContainerStyle>
-                                    <Style TargetType="ContentPresenter">
-                                        <Setter Property="Canvas.Left" Value="{Binding x}" />
-                                        <Setter Property="Canvas.Top" Value="{Binding y}" />
-                                    </Style>
-                                </ItemsControl.ItemContainerStyle>
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate>
-                                        <ContentControl>
-                                            <ContentControl.Style>
-                                                <Style TargetType="ContentControl">
-                                                    <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding ElementType}" Value="TextBox">
-                                                            <Setter Property="Content">
-                                                                <Setter.Value>
-                                                                    <TextBox Text="{Binding Contents, Mode=TwoWay}" Width="{Binding width}" Height="{Binding height}" />
-                                                                </Setter.Value>
-                                                            </Setter>
-                                                        </DataTrigger>
-                                                        <DataTrigger Binding="{Binding ElementType}" Value="ComboBox">
-                                                            <Setter Property="Content">
-                                                                <Setter.Value>
-                                                                    <ComboBox ItemsSource="{Binding ContentsList}" SelectedItem="{Binding Contents}" Width="{Binding width}" Height="{Binding height}" />
-                                                                </Setter.Value>
-                                                            </Setter>
-                                                        </DataTrigger>
-                                                    </Style.Triggers>
-                                                </Style>
-                                            </ContentControl.Style>
-                                        </ContentControl>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
                         </Canvas>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>

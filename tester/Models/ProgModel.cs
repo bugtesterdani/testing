@@ -20,6 +20,10 @@
 
     public class position
     {
+        //optional
+        public double height { get; set; }
+        public double width { get; set; }
+        //required
         public double x { get; set; }
         public double y { get; set; }
     }
@@ -27,5 +31,6 @@
     public class items
     {
         public List<string> type { get; set; }
+        public position position { get; set; }
     }
 }

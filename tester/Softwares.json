@@ -5,6 +5,10 @@
       {
         "name": "if",
         "path": "defaults"
+      },
+      {
+        "name": "compare",
+        "path": "defaults"
       }
     ]
   }

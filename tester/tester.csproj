@@ -14,6 +14,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="C#\defaults\compare.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="C#\defaults\If.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

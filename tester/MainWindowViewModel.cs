@@ -2,7 +2,7 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
-using System.Text.Json;
+using System.Reflection.Metadata.Ecma335;
 using tester.Models;
 
 namespace tester
@@ -19,42 +19,37 @@ namespace tester
                 OnPropertyChanged(nameof(Line));
             }
         }
-        public List<Lines> Line
-        {
-            get
-            {
-                return [.. _lines.Values];
-            }
-        }
+        public List<Lines> Line => [.. _lines.Values];
+
         public ObservableCollection<Teil> Teile { get; set; } = [];
         public ObservableCollection<ButtonItem> Buttons { get; set; }
 
         public MainWindowViewModel()
         {
-            Buttons = new ObservableCollection<ButtonItem>
-            {
-                new ButtonItem
+            Buttons =
+            [
+                new()
                 {
                     Name = "Texteingabe",
                     Command = new RelayCommand<string>(param => OnButtonClick("0"))
                 },
-                new ButtonItem
+                new()
                 {
                     Name = "Klone",
                     Command = new RelayCommand<string>(param => OnButtonClick("1"))
                 }
-            };
-            Teile.Add(new Teil
+            ];
+            Teile.Add(new()
             {
                 PositionX = 100,
                 PositionY = 100,
                 Breite = 50,
                 Höhe = 40,
                 Farbe = "Yellow",
-                Knoten = new()
-                {
-                    new Knotenpunkt { PositionX = 40, PositionY = 15, selectedpos = Positionselected.End }
-                }
+                Knoten =
+                [
+                    new() { PositionX = 40, PositionY = 15, selectedpos = Positionselected.End }
+                ]
             });
             ParseJsonMain();
         }
@@ -62,7 +57,7 @@ namespace tester
         private void ParseJsonMain()
         {
             string json = File.ReadAllText("Softwares.json");
-            List<SoftwaresModel> softwares = JsonConvert.DeserializeObject<List<SoftwaresModel>>(json);
+            List<SoftwaresModel>? softwares = JsonConvert.DeserializeObject<List<SoftwaresModel>>(json);
             if (softwares == null)
                 return;
 
@@ -70,21 +65,21 @@ namespace tester
                 foreach (var sprache in soft.inhalt)
                 {
                     string json2 = File.ReadAllText(soft.sprache + "//" + sprache.path + "//" + sprache.name + ".json");
-                    ProgModel progs = JsonConvert.DeserializeObject<ProgModel>(json2);
+                    ProgModel? progs = JsonConvert.DeserializeObject<ProgModel>(json2);
                     if (progs == null)
                         continue;
 
-                    Buttons.Add(new ButtonItem()
+                    Buttons.Add(new()
                     {
                         Name = sprache.path + "-" + sprache.name,
                         Command = new RelayCommand<string>(param =>
                         {
-                            List<Knotenpunkt> k = new();
+                            List<Knotenpunkt> k = [];
                             foreach (var knot in progs.inputs)
-                                k.Add(new Knotenpunkt { PositionX = knot.position.x, PositionY = knot.position.y, selectedpos = Positionselected.Start });
+                                k.Add(new() { PositionX = knot.position.x, PositionY = knot.position.y, selectedpos = Positionselected.Start });
                             foreach (var knot in progs.output)
-                                k.Add(new Knotenpunkt { PositionX = knot.position.x, PositionY = knot.position.y, selectedpos = Positionselected.End });
-                            k.Add(new Knotenpunkt { PositionX = (progs.width / 2) - 10, PositionY = 0, selectedpos = Positionselected.Start });
+                                k.Add(new() { PositionX = knot.position.x, PositionY = knot.position.y, selectedpos = Positionselected.End });
+                            k.Add(new() { PositionX = (progs.width / 2) - 10, PositionY = 0, selectedpos = Positionselected.Start });
                             Teile.Add(new()
                             {
                                 Breite = progs.width,
@@ -104,37 +99,33 @@ namespace tester
             switch (buttonLabel)
             {
                 case "0":
-                    Teile.Add(new Teil
+                    Teile.Add(new()
                     {
                         PositionX = 100,
                         PositionY = 100,
                         Breite = 100,
                         Höhe = 40,
                         Farbe = "Yellow",
-                        Knoten = new()
-                        {
-                            new Knotenpunkt { PositionX = 90, PositionY = 15, selectedpos = Positionselected.End }
-                        },
-                        UIElements = new ObservableCollection<UIElementModel>()
-                        {
-                            new UIElementModel() { ElementType = "TextBox", height = 20, width = 50, x = 25, y = 10 }
-                        }
+                        Knoten =
+                        [
+                            new() { PositionX = 90, PositionY = 15, selectedpos = Positionselected.End }
+                        ]
                     });
                     break;
                 case "1":
-                    Teile.Add(new Teil
+                    Teile.Add(new()
                     {
                         PositionX = 100,
                         PositionY = 100,
                         Breite = 100,
                         Höhe = 60,
                         Farbe = "Yellow",
-                        Knoten = new()
-                        {
-                            new Knotenpunkt { PositionX = 0, PositionY = 25, selectedpos = Positionselected.Start },
-                            new Knotenpunkt { PositionX = 90, PositionY = 15, selectedpos = Positionselected.End },
-                            new Knotenpunkt { PositionX = 90, PositionY = 35, selectedpos = Positionselected.End }
-                        }
+                        Knoten =
+                        [
+                            new() { PositionX = 0, PositionY = 25, selectedpos = Positionselected.Start },
+                            new() { PositionX = 90, PositionY = 15, selectedpos = Positionselected.End },
+                            new() { PositionX = 90, PositionY = 35, selectedpos = Positionselected.End }
+                        ]
                     });
                     break;
                 default:
@@ -149,7 +140,7 @@ namespace tester
             OnPropertyChanged(nameof(Teile));
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged;
         protected virtual void OnPropertyChanged(string propertyName)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
